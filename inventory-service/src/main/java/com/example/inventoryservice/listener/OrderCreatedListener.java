@@ -8,7 +8,7 @@ import com.example.inventoryservice.model.OrderCreatedEvent;
 @Component
 public class OrderCreatedListener {
 
-	@KafkaListener(topics = "order-created", groupId = "inventory-service")
+	@KafkaListener(topics = "${app.kafka.topics.order-created}", groupId = "inventory-service")
 	public void onOrderCreated(OrderCreatedEvent event) {
 		System.out.println("Processing order:");
 		System.out.println("OrderId: " + event.getOrderId());
