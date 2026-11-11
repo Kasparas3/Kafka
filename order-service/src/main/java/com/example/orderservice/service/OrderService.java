@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.example.orderservice.kafka.OrderEventPublisher;
 import com.example.orderservice.model.OrderCreatedEvent;
 import com.example.orderservice.model.OrderRequest;
+import com.example.orderservice.model.OrderResponse;
 
 @Service
 public class OrderService {
@@ -18,11 +19,12 @@ public class OrderService {
 		this.orderEventPublisher = orderEventPublisher;
 	}
 
-	public OrderCreatedEvent createOrder(OrderRequest request) {
+	public OrderResponse createOrder(OrderRequest request) {
 		OrderCreatedEvent event = new OrderCreatedEvent(UUID.randomUUID(), request.getCustomerId(),
 				request.getProduct(), request.getQuantity(), Instant.now());
 		orderEventPublisher.publish(event);
-		return event;
+		return new OrderResponse(event.getOrderId(), event.getCustomerId(), event.getProduct(), event.getQuantity(),
+				event.getCreatedTime());
 	}
 
 }

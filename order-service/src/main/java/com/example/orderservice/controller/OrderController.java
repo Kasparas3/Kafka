@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.orderservice.model.OrderCreatedEvent;
 import com.example.orderservice.model.OrderRequest;
+import com.example.orderservice.model.OrderResponse;
 import com.example.orderservice.service.OrderService;
 
 @RestController
@@ -21,7 +21,7 @@ public class OrderController {
 
 	@PostMapping("/orders")
 	@ResponseStatus(HttpStatus.CREATED)
-	public OrderCreatedEvent createOrder(@RequestBody OrderRequest request) {
+	public OrderResponse createOrder(@RequestBody OrderRequest request) {
 		return orderService.createOrder(request);
 	}
 

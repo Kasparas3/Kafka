@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.example.orderservice.kafka.OrderEventPublisher;
 import com.example.orderservice.model.OrderCreatedEvent;
 import com.example.orderservice.model.OrderRequest;
+import com.example.orderservice.model.OrderResponse;
 
 @ExtendWith(MockitoExtension.class)
 class OrderServiceTest {
@@ -33,13 +34,12 @@ class OrderServiceTest {
 		request.setQuantity(2);
 		Instant before = Instant.now();
 
-		OrderCreatedEvent result = orderService.createOrder(request);
+		orderService.createOrder(request);
 
 		ArgumentCaptor<OrderCreatedEvent> captor = ArgumentCaptor.forClass(OrderCreatedEvent.class);
 		verify(orderEventPublisher).publish(captor.capture());
 		OrderCreatedEvent published = captor.getValue();
 
-		assertThat(published).isSameAs(result);
 		assertThat(published.getOrderId()).isNotNull();
 		assertThat(published.getCustomerId()).isEqualTo(15L);
 		assertThat(published.getProduct()).isEqualTo("Laptop");
@@ -48,11 +48,31 @@ class OrderServiceTest {
 	}
 
 	@Test
+	void createOrderReturnsResponseMatchingPublishedEvent() {
+		OrderRequest request = new OrderRequest();
+		request.setCustomerId(15L);
+		request.setProduct("Laptop");
+		request.setQuantity(2);
+
+		OrderResponse response = orderService.createOrder(request);
+
+		ArgumentCaptor<OrderCreatedEvent> captor = ArgumentCaptor.forClass(OrderCreatedEvent.class);
+		verify(orderEventPublisher).publish(captor.capture());
+		OrderCreatedEvent published = captor.getValue();
+
+		assertThat(response.getOrderId()).isEqualTo(published.getOrderId());
+		assertThat(response.getCustomerId()).isEqualTo(published.getCustomerId());
+		assertThat(response.getProduct()).isEqualTo(published.getProduct());
+		assertThat(response.getQuantity()).isEqualTo(published.getQuantity());
+		assertThat(response.getCreatedTime()).isEqualTo(published.getCreatedTime());
+	}
+
+	@Test
 	void createOrderGeneratesUniqueOrderIds() {
 		OrderRequest request = new OrderRequest();
 
-		OrderCreatedEvent first = orderService.createOrder(request);
-		OrderCreatedEvent second = orderService.createOrder(request);
+		OrderResponse first = orderService.createOrder(request);
+		OrderResponse second = orderService.createOrder(request);
 
 		assertThat(first.getOrderId()).isNotEqualTo(second.getOrderId());
 	}
