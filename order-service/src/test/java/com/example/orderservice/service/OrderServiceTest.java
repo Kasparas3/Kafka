@@ -1,6 +1,9 @@
 package com.example.orderservice.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 
 import java.time.Instant;
@@ -12,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.example.orderservice.exception.OrderPublishException;
 import com.example.orderservice.kafka.OrderEventPublisher;
 import com.example.orderservice.model.OrderCreatedEvent;
 import com.example.orderservice.model.OrderRequest;
@@ -65,6 +69,14 @@ class OrderServiceTest {
 		assertThat(response.getProduct()).isEqualTo(published.getProduct());
 		assertThat(response.getQuantity()).isEqualTo(published.getQuantity());
 		assertThat(response.getCreatedTime()).isEqualTo(published.getCreatedTime());
+	}
+
+	@Test
+	void createOrderPropagatesPublishFailure() {
+		OrderPublishException failure = new OrderPublishException("Failed to publish order", new RuntimeException());
+		doThrow(failure).when(orderEventPublisher).publish(any(OrderCreatedEvent.class));
+
+		assertThatThrownBy(() -> orderService.createOrder(new OrderRequest())).isSameAs(failure);
 	}
 
 	@Test

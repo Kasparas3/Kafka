@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import com.example.orderservice.exception.OrderPublishException;
 import com.example.orderservice.model.OrderRequest;
 import com.example.orderservice.model.OrderResponse;
 import com.example.orderservice.service.OrderService;
@@ -46,6 +47,18 @@ class OrderControllerTest {
 			.andExpect(jsonPath("$.product").value("Laptop"))
 			.andExpect(jsonPath("$.quantity").value(2))
 			.andExpect(jsonPath("$.createdTime").value("2026-11-06T07:24:24Z"));
+	}
+
+	@Test
+	void createOrderReturns503WhenPublishingFails() throws Exception {
+		when(orderService.createOrder(any(OrderRequest.class)))
+			.thenThrow(new OrderPublishException("Failed to publish order", new RuntimeException("broker down")));
+
+		mockMvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON)
+			.content("""
+					{"customerId": 15, "product": "Laptop", "quantity": 2}
+					"""))
+			.andExpect(status().isServiceUnavailable());
 	}
 
 }
