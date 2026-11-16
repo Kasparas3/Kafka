@@ -1,6 +1,7 @@
 package com.example.orderservice.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -58,7 +59,43 @@ class OrderControllerTest {
 			.content("""
 					{"customerId": 15, "product": "Laptop", "quantity": 2}
 					"""))
-			.andExpect(status().isServiceUnavailable());
+			.andExpect(status().isServiceUnavailable())
+			.andExpect(jsonPath("$.detail").value("Order could not be placed right now, please try again later"));
+	}
+
+	@Test
+	void createOrderReturns400WhenFieldsAreMissing() throws Exception {
+		mockMvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON).content("{}"))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.detail").value("Validation failed"))
+			.andExpect(jsonPath("$.errors.customerId").exists())
+			.andExpect(jsonPath("$.errors.product").exists())
+			.andExpect(jsonPath("$.errors.quantity").exists());
+
+		verifyNoInteractions(orderService);
+	}
+
+	@Test
+	void createOrderReturns400WhenValuesAreInvalid() throws Exception {
+		mockMvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON)
+			.content("""
+					{"customerId": -1, "product": " ", "quantity": 0}
+					"""))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.errors.customerId").exists())
+			.andExpect(jsonPath("$.errors.product").exists())
+			.andExpect(jsonPath("$.errors.quantity").exists());
+
+		verifyNoInteractions(orderService);
+	}
+
+	@Test
+	void createOrderReturns400WhenJsonIsMalformed() throws Exception {
+		mockMvc.perform(post("/orders").contentType(MediaType.APPLICATION_JSON).content("{\"customerId\": "))
+			.andExpect(status().isBadRequest())
+			.andExpect(jsonPath("$.status").value(400));
+
+		verifyNoInteractions(orderService);
 	}
 
 }

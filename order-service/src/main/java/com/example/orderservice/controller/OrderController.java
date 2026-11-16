@@ -10,6 +10,8 @@ import com.example.orderservice.model.OrderRequest;
 import com.example.orderservice.model.OrderResponse;
 import com.example.orderservice.service.OrderService;
 
+import jakarta.validation.Valid;
+
 @RestController
 public class OrderController {
 
@@ -21,7 +23,7 @@ public class OrderController {
 
 	@PostMapping("/orders")
 	@ResponseStatus(HttpStatus.CREATED)
-	public OrderResponse createOrder(@RequestBody OrderRequest request) {
+	public OrderResponse createOrder(@Valid @RequestBody OrderRequest request) {
 		return orderService.createOrder(request);
 	}
 
