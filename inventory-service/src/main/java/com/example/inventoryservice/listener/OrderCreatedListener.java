@@ -5,15 +5,16 @@ import org.springframework.stereotype.Component;
 
 import com.example.inventoryservice.model.OrderCreatedEvent;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Component
 public class OrderCreatedListener {
 
 	@KafkaListener(topics = "${app.kafka.topics.order-created}", groupId = "inventory-service")
 	public void onOrderCreated(OrderCreatedEvent event) {
-		System.out.println("Processing order:");
-		System.out.println("OrderId: " + event.getOrderId());
-		System.out.println("Product: " + event.getProduct());
-		System.out.println("Quantity: " + event.getQuantity());
+		log.info("Processing order: OrderId: {}, Product: {}, Quantity: {}", event.getOrderId(), event.getProduct(),
+				event.getQuantity());
 	}
 
 }
