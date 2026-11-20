@@ -60,7 +60,10 @@ class OrderControllerTest {
 					{"customerId": 15, "product": "Laptop", "quantity": 2}
 					"""))
 			.andExpect(status().isServiceUnavailable())
-			.andExpect(jsonPath("$.detail").value("Order could not be placed right now, please try again later"));
+			.andExpect(jsonPath("$.title").value("Order not created"))
+			.andExpect(jsonPath("$.detail").value(
+					"The order was not created because the order event could not be delivered to the message broker. "
+							+ "Nothing was saved, so it is safe to send the same request again."));
 	}
 
 	@Test

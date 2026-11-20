@@ -36,8 +36,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
 	@ExceptionHandler(OrderPublishException.class)
 	public ProblemDetail handleOrderPublishException(OrderPublishException ex) {
-		return ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,
-				"Order could not be placed right now, please try again later");
+		ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE,
+				"The order was not created because the order event could not be delivered to the message broker. "
+						+ "Nothing was saved, so it is safe to send the same request again.");
+		problem.setTitle("Order not created");
+		return problem;
 	}
 
 	@ExceptionHandler(Exception.class)

@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class OrderCreatedListener {
 
-	@KafkaListener(topics = "${app.kafka.topics.order-created}", groupId = "inventory-service")
+	@KafkaListener(topics = "${app.kafka.topics.order-created}")
 	public void onOrderCreated(OrderCreatedEvent event) {
 		log.info("Processing order: OrderId: {}, Product: {}, Quantity: {}", event.getOrderId(), event.getProduct(),
 				event.getQuantity());
