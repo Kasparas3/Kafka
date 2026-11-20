@@ -19,8 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class OrderEventPublisher {
 
-	// Slightly above the producer's delivery.timeout.ms, so Kafka's own timeout normally fires first
-	private static final long SEND_TIMEOUT_SECONDS = 15;
+
+	private static final long SEND_TIMEOUT_SECONDS = 5;
 
 	private final KafkaTemplate<String, OrderCreatedEvent> kafkaTemplate;
 
